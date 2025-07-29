@@ -111,17 +111,43 @@ FunSection:CreateButton({
 
 local RageSection = RageTab:CreateSection("Rage Features")
 
-RageSection:CreateSlider({
-    Name = "Speed Hack",
-    Range = {16, 150},
-    Increment = 1,
-    Default = 16,
-    Callback = function(value)
-        local character = game.Players.LocalPlayer.Character
-        if character and character:FindFirstChildOfClass("Humanoid") then
-            character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
-        end
-    end,
+local cfSpeed = 0.2
+local cfEnabled = false
+
+MainTab:CreateSlider({
+	Name = "Speed Hack",
+	Range = {0.2, 0.7},
+	Increment = 0.05,
+	Suffix = "Speed",
+	CurrentValue = cfSpeed,
+	Flag = "cf_slider",
+	Callback = function(val)
+		cfSpeed = val
+	end,
+})
+
+MainTab:CreateToggle({
+	Name = "Toggle Speed Hack",
+	CurrentValue = false,
+	Flag = "cf_toggle",
+	Callback = function(enabled)
+		cfEnabled = enabled
+		if enabled then
+			task.spawn(function()
+				while cfEnabled and task.wait() do
+					local p = game.Players.LocalPlayer
+					local c = p.Character
+					if c then
+						local h = c:FindFirstChildOfClass("Humanoid")
+						local hrp = c:FindFirstChild("HumanoidRootPart")
+						if h and hrp then
+							hrp.CFrame = hrp.CFrame + (h.MoveDirection * cfSpeed)
+						end
+					end
+				end
+			end)
+		end
+	end,
 })
 
 local StyleSection = StyleChangerTab:CreateSection("Change Style")
